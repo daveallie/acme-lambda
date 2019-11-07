@@ -1,0 +1,11 @@
+# package directories
+node_modules
+# Serverless directories
+.serverless
+
+client/download.sh
+src/config.json
+
+.idea/
+.webpack
+.DS_Store

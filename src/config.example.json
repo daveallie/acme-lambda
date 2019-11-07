@@ -1,0 +1,15 @@
+{
+  "letsEncryptEmail": "you@example.com",
+  "certificateConfigList": [
+    {
+      "name": "com.example+wildcard",
+      "hostedZoneId": "<HOSTEDZONEID>",
+      "dnsNames": ["*.example.com", "example.com"]
+    },
+    {
+      "name": "com.example.foo+com.example.bar+com.example.baz",
+      "hostedZoneId": "<HOSTEDZONEID>",
+      "dnsNames": ["foo.example2.com", "bar.example2.com", "baz.example2.com"]
+    }
+  ]
+}

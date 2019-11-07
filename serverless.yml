@@ -1,0 +1,137 @@
+service: acme-lambda
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  profile: ${opt:awsProfile}
+  usagePlan:
+    quota:
+      limit: 100
+      period: DAY
+
+plugins:
+  - serverless-webpack
+  - serverless-iam-roles-per-function
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  webpack:
+    includeModules: true
+    packager: yarn
+  certificateProvisioningEvents:
+    prod:
+      - schedule: rate(5 days)
+    dev:
+
+functions:
+  certificateProvisioning:
+    handler: src/index.certificateProvisioningHandler
+    memorySize: 196
+    timeout: 120
+    environment:
+      BUCKET_NAME: { "Ref" : "AcmeLambdaStorage" }
+      SLS_ENV: ${self:custom.stage}
+    events: ${self:custom.certificateProvisioningEvents.${self:custom.stage}}
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - s3:ListBucket
+        Resource: !Join
+          - ""
+          - - "arn:aws:s3:::"
+            - !Ref AcmeLambdaStorage
+      - Effect: "Allow"
+        Action:
+          - s3:PutObject
+          - s3:GetObject
+          - s3:HeadObject
+        Resource: !Join
+          - ""
+          - - "arn:aws:s3:::"
+            - !Ref AcmeLambdaStorage
+            - "/*"
+      - Effect: "Allow"
+        Action:
+          - route53:ChangeResourceRecordSets
+        Resource:
+          - arn:aws:route53:::hostedzone/*
+  certificateProvider:
+    handler: src/index.certificateProviderHandler
+    memorySize: 128
+    timeout: 2
+    environment:
+      BUCKET_NAME: { "Ref": "AcmeLambdaStorage" }
+      SLS_ENV: ${self:custom.stage}
+    events:
+      - http:
+          path: dl
+          method: POST
+          private: true
+          authorizer:
+            name: authCertificateProvider
+            resultTtlInSeconds: 300
+            identitySource: context.identity.apiKeyId, context.identity.sourceIp, method.request.header.x-certificate-name
+            type: request
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - s3:ListBucket
+        Resource: !Join
+          - ""
+          - - "arn:aws:s3:::"
+            - !Ref AcmeLambdaStorage
+      - Effect: "Allow"
+        Action:
+          - s3:GetObject
+          - s3:HeadObject
+        Resource: !Join
+          - ""
+          - - "arn:aws:s3:::"
+            - !Ref AcmeLambdaStorage
+            - "/*"
+  authCertificateProvider:
+    handler: src/index.authCertificateProviderHandler
+    memorySize: 128
+    timeout: 2
+    environment:
+      SLS_ENV: ${self:custom.stage}
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - apigateway:GET
+        Resource: "*"
+  buildApiKey:
+    handler: src/index.buildApiKeyHandler
+    memorySize: 128
+    timeout: 2
+    environment:
+      API_GATEWAY_USAGE_PLAN_ID: { "Ref" : "ApiGatewayUsagePlan" }
+      SLS_ENV: ${self:custom.stage}
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - apigateway:PUT
+          - apigateway:POST
+        Resource: "*"
+
+resources:
+ Resources:
+   AcmeLambdaStorage:
+     Type: AWS::S3::Bucket
+     Properties:
+       BucketName: !Join
+         - "-"
+         - - "acme-lambda-storage"
+           - !Select
+             - 0
+             - !Split
+               - "-"
+               - !Select
+                 - 2
+                 - !Split
+                   - "/"
+                   - !Ref "AWS::StackId"
+       BucketEncryption:
+         ServerSideEncryptionConfiguration:
+           - ServerSideEncryptionByDefault:
+               SSEAlgorithm: "aws:kms"

@@ -3,6 +3,9 @@
 Serverless lambda service to provision and provide certificates provided
 through Let's Encrypt for your domains controlled in AWS Route53.
 
+I'm using it right now to provision my certificates for
+[daveallie.com](https://daveallie.com).
+
 ## Explaination
 
 ### Problem

@@ -5,8 +5,10 @@ import {
   putS3AccountKey,
   putS3AccountUrl
 } from "../aws/s3";
-import { letsEncryptEmail } from "../config.json";
+import config from "../config.json";
 import { PRODUCTION } from "../util/env";
+
+const letsEncryptEmail = config.letsEncryptEmail;
 
 const acmeDirectoryUrl = PRODUCTION
   ? acme.directory.letsencrypt.production

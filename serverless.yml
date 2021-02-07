@@ -2,31 +2,36 @@ service: acme-lambda
 
 provider:
   name: aws
-  runtime: nodejs10.x
+  runtime: nodejs12.x
   profile: ${opt:awsProfile}
-  usagePlan:
-    quota:
-      limit: 100
-      period: DAY
+  lambdaHashingVersion: 20201221
+  apiGateway:
+    shouldStartNameWithService: true
+    usagePlan:
+      quota:
+        limit: 100
+        period: DAY
 
 plugins:
-  - serverless-webpack
+  - serverless-bundle
   - serverless-iam-roles-per-function
 
 custom:
   stage: ${opt:stage, self:provider.stage}
-  webpack:
-    includeModules: true
+  bundle:
     packager: yarn
   certificateProvisioningEvents:
     prod:
       - schedule: rate(5 days)
     dev:
+      - schedule:
+          rate: rate(30 days)
+          enabled: false
 
 functions:
   certificateProvisioning:
     handler: src/index.certificateProvisioningHandler
-    memorySize: 196
+    memorySize: 192
     timeout: 120
     environment:
       BUCKET_NAME: { "Ref" : "AcmeLambdaStorage" }

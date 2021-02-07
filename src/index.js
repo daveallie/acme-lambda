@@ -1,4 +1,3 @@
-import "babel-polyfill";
 import "source-map-support/register";
 import certificateProvisioning from "./certificateProvisioning";
 import authCertificateProvider from "./authCertificateProvider";

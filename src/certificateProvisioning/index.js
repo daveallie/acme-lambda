@@ -3,7 +3,9 @@ import { getClient } from "./client";
 import processOrders from "./order";
 import { getS3CertificateData } from "../aws/s3";
 import { asyncFilter } from "../util/array";
-import { certificateConfigList } from "../config.json";
+import config from "../config.json";
+
+const certificateConfigList = config.certificateConfigList;
 
 const diffDays = (date1, date2) =>
   (date1.getTime() - date2.getTime()) / (24 * 60 * 60 * 1000);

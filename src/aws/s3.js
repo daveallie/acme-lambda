@@ -10,7 +10,7 @@ const certsFolder = `certs${folderPostfix}`;
 
 const accountKeyPath = `${configFolder}/account-key`;
 const accountUrlPath = `${configFolder}/account-url`;
-const certPath = certName => `${certsFolder}/${certName}.json`;
+const certPath = (certName) => `${certsFolder}/${certName}.json`;
 
 const getObject = (key, opts = {}) =>
   s3.getObject({ ...opts, Bucket: bucketName, Key: key }).promise();

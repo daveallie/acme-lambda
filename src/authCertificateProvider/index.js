@@ -27,18 +27,18 @@ const generatePolicy = (principalId, effect, resource) => ({
       {
         Effect: effect,
         Action: "execute-api:Invoke",
-        Resource: resource
-      }
-    ]
-  }
+        Resource: resource,
+      },
+    ],
+  },
 });
 
-const eventArn = event =>
+const eventArn = (event) =>
   SLS_PRODUCTION
     ? event.methodArn.replace(/\/prod\/.*/, "/prod/*/*")
     : event.methodArn.replace(/\/dev\/.*/, "/dev/*/*");
 
-const getEventAuthDetails = event => {
+const getEventAuthDetails = (event) => {
   const requestCertName = getCertificateNameHeader(event);
   const apiKeyId = event.requestContext.identity.apiKeyId;
   const sourceIp = event.requestContext.identity.sourceIp;
@@ -61,7 +61,7 @@ const getEventAuthDetails = event => {
   return { requestCertName, apiKeyId, sourceIp };
 };
 
-export default async event => {
+export default async (event) => {
   const { requestCertName, apiKeyId, sourceIp } = getEventAuthDetails(event);
   const apiKeyTags = await getTagsForApiKey(apiKeyId);
   const allowedCidr = apiKeyTags[API_KEY_CIDR_KEY];
@@ -84,7 +84,7 @@ export default async event => {
 
   const allowedCerts = fromBase64(base64AllowedCerts)
     .split(",")
-    .map(certName => certName.toLowerCase());
+    .map((certName) => certName.toLowerCase());
 
   if (!allowedCerts.includes(requestCertName.toLowerCase())) {
     console.log("Missing specific cert, denying");

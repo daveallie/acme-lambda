@@ -8,5 +8,5 @@ const getHeaderValueFromEvent = (event, headerName) => {
 };
 
 const CERT_NAME_HEADER = "x-certificate-name";
-export const getCertificateNameHeader = event =>
+export const getCertificateNameHeader = (event) =>
   getHeaderValueFromEvent(event, CERT_NAME_HEADER);

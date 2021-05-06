@@ -11,7 +11,7 @@ const createDnsChallenge = async (hostedZoneId, domain, keyAuthorizations) => {
   );
 
   return saveAcmeTxtRecords(hostedZoneId, domain, keyAuthorizations).catch(
-    e => {
+    (e) => {
       console.error(`Couldn't write TXT record _acme-challenge.${domain}`, e);
       throw e;
     }
@@ -23,15 +23,15 @@ const createDnsChallenge = async (hostedZoneId, domain, keyAuthorizations) => {
  * be finalized, even though something went wrong during cleanup
  */
 const cleanupDnsChallenge = (hostedZoneId, domain, keyAuthorizations) =>
-  removeAcmeTxtRecords(hostedZoneId, domain, keyAuthorizations).catch(e =>
+  removeAcmeTxtRecords(hostedZoneId, domain, keyAuthorizations).catch((e) =>
     console.error(e)
   );
 
-const buildOrderDetailData = dnsNames => ({
-  identifiers: dnsNames.map(dnsName => ({
+const buildOrderDetailData = (dnsNames) => ({
+  identifiers: dnsNames.map((dnsName) => ({
     type: "dns",
-    value: dnsName
-  }))
+    value: dnsName,
+  })),
 });
 
 const performAndValidateDomainChallenge = async (
@@ -41,18 +41,20 @@ const performAndValidateDomainChallenge = async (
   auths
 ) => {
   console.log("Domain: ", domain);
-  const challenges = auths.map(auth =>
-    auth.challenges.find(challenge => challenge.type === "dns-01")
+  const challenges = auths.map((auth) =>
+    auth.challenges.find((challenge) => challenge.type === "dns-01")
   );
 
   const keyAuthorizations = await Promise.all(
-    challenges.map(challenge => client.getChallengeKeyAuthorization(challenge))
+    challenges.map((challenge) =>
+      client.getChallengeKeyAuthorization(challenge)
+    )
   );
 
   await createDnsChallenge(hostedZoneId, domain, keyAuthorizations);
 
   // Give time for DNS to propagate
-  await new Promise(resolve => setTimeout(resolve, 10000));
+  await new Promise((resolve) => setTimeout(resolve, 10000));
 
   await Promise.all(
     zip(auths, challenges).map(([auth, challenge]) =>
@@ -91,7 +93,7 @@ export const createAndFulfillOrder = async (client, certificateConfig) => {
   const keyedAuths = authorizations.reduce(
     (acc, curr) => ({
       ...acc,
-      [curr.identifier.value]: [...(acc[curr.identifier.value] || []), curr]
+      [curr.identifier.value]: [...(acc[curr.identifier.value] || []), curr],
     }),
     {}
   );
@@ -106,7 +108,7 @@ export const createAndFulfillOrder = async (client, certificateConfig) => {
   /* Finalize order */
   const [key, csr] = await acme.forge.createCsr({
     commonName: dnsNames[0],
-    altNames: dnsNames.slice(1)
+    altNames: dnsNames.slice(1),
   });
 
   console.log("Finalising order and getting cert");
@@ -116,13 +118,13 @@ export const createAndFulfillOrder = async (client, certificateConfig) => {
   return {
     csr: csr.toString(),
     key: key.toString(),
-    cert: cert.toString()
+    cert: cert.toString(),
   };
 };
 
 export default (client, certificateConfigList) =>
   Promise.all(
-    certificateConfigList.map(async certificateConfig => {
+    certificateConfigList.map(async (certificateConfig) => {
       const certName = certificateConfig.name;
       const updatedCertData = await createAndFulfillOrder(
         client,

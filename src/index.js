@@ -6,8 +6,8 @@ import buildApiKey from "./buildApiKey";
 
 export const certificateProvisioningHandler = async () =>
   await certificateProvisioning();
-export const authCertificateProviderHandler = async event =>
+export const authCertificateProviderHandler = async (event) =>
   await authCertificateProvider(event);
-export const certificateProviderHandler = async event =>
+export const certificateProviderHandler = async (event) =>
   await certificateProvider(event);
-export const buildApiKeyHandler = async event => await buildApiKey(event);
+export const buildApiKeyHandler = async (event) => await buildApiKey(event);

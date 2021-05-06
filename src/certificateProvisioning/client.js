@@ -3,7 +3,7 @@ import {
   getS3AccountKey,
   getS3AccountUrl,
   putS3AccountKey,
-  putS3AccountUrl
+  putS3AccountUrl,
 } from "../aws/s3";
 import config from "../config.json";
 import { PRODUCTION } from "../util/env";
@@ -25,10 +25,10 @@ const buildAndSaveAccountKey = async () => {
 
 const getAccountUrl = () =>
   getS3AccountUrl()
-    .then(data => data.Body.toString())
+    .then((data) => data.Body.toString())
     .catch(() => null);
 
-const saveAccountUrl = async client => {
+const saveAccountUrl = async (client) => {
   const accountUrl = await client.getAccountUrl();
 
   await putS3AccountUrl(accountUrl);
@@ -36,8 +36,8 @@ const saveAccountUrl = async client => {
 
 const getAccountKey = () =>
   getS3AccountKey()
-    .then(data => data.Body)
-    .catch(async e => {
+    .then((data) => data.Body)
+    .catch(async (e) => {
       if (!e.code || e.code !== "NoSuchKey") {
         throw e;
       }
@@ -57,13 +57,13 @@ export const getClient = async () => {
     directoryUrl: acmeDirectoryUrl,
     backoffAttempts: 7,
     backoffMin: 10000,
-    backoffMax: 10000
+    backoffMax: 10000,
   });
 
   if (!accountUrl) {
     await client.createAccount({
       termsOfServiceAgreed: true,
-      contact: [`mailto:${letsEncryptEmail}`]
+      contact: [`mailto:${letsEncryptEmail}`],
     });
 
     await saveAccountUrl(client);

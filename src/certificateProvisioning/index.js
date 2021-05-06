@@ -10,7 +10,7 @@ const certificateConfigList = config.certificateConfigList;
 const diffDays = (date1, date2) =>
   (date1.getTime() - date2.getTime()) / (24 * 60 * 60 * 1000);
 
-const daysUntilCertExpires = cert => {
+const daysUntilCertExpires = (cert) => {
   const certificateObj = forge.pki.certificateFromPem(cert);
   const certificateExpiry = new Date(certificateObj.validity.notAfter);
   const now = new Date();
@@ -18,10 +18,10 @@ const daysUntilCertExpires = cert => {
   return diffDays(certificateExpiry, now);
 };
 
-const isCertificateRenewalNeeded = async certificateConfig => {
+const isCertificateRenewalNeeded = async (certificateConfig) => {
   const certName = certificateConfig.name;
   const certData = await getS3CertificateData(certName)
-    .then(data => JSON.parse(data.Body.toString()))
+    .then((data) => JSON.parse(data.Body.toString()))
     .catch(() => null);
 
   if (!certData) {

@@ -5,10 +5,10 @@ const route53 = new Route53();
 const buildResourceRecordSet = (domain, values) => ({
   Name: `_acme-challenge.${domain}`,
   Type: "TXT",
-  ResourceRecords: values.map(challengeTxt => ({
-    Value: JSON.stringify(challengeTxt)
+  ResourceRecords: values.map((challengeTxt) => ({
+    Value: JSON.stringify(challengeTxt),
   })),
-  TTL: 1
+  TTL: 1,
 });
 
 export const saveAcmeTxtRecords = (hostedZoneId, domain, values) => {
@@ -17,13 +17,13 @@ export const saveAcmeTxtRecords = (hostedZoneId, domain, values) => {
       Changes: [
         {
           Action: "UPSERT",
-          ResourceRecordSet: buildResourceRecordSet(domain, values)
-        }
+          ResourceRecordSet: buildResourceRecordSet(domain, values),
+        },
       ],
       Comment:
-        "This value is a computed digest of the token received from the ACME challenge."
+        "This value is a computed digest of the token received from the ACME challenge.",
     },
-    HostedZoneId: hostedZoneId
+    HostedZoneId: hostedZoneId,
   };
 
   return route53.changeResourceRecordSets(toSend).promise();
@@ -35,12 +35,12 @@ export const removeAcmeTxtRecords = (hostedZoneId, domain, values) => {
       Changes: [
         {
           Action: "DELETE",
-          ResourceRecordSet: buildResourceRecordSet(domain, values)
-        }
+          ResourceRecordSet: buildResourceRecordSet(domain, values),
+        },
       ],
-      Comment: "Removing ACME challenges."
+      Comment: "Removing ACME challenges.",
     },
-    HostedZoneId: hostedZoneId
+    HostedZoneId: hostedZoneId,
   };
 
   return route53.changeResourceRecordSets(toSend).promise();

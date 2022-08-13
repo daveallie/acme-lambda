@@ -1,5 +1,5 @@
 import { parseCIDR, parse as parseIP } from "ipaddr.js";
-import { SLS_PRODUCTION } from "../util/env";
+import { PRODUCTION } from "../util/env";
 import { getTagsForApiKey } from "../aws/apiGateway";
 import { getCertificateNameHeader } from "../util/request";
 import { fromBase64 } from "../util/base64";
@@ -34,7 +34,7 @@ const generatePolicy = (principalId, effect, resource) => ({
 });
 
 const eventArn = (event) =>
-  SLS_PRODUCTION
+  PRODUCTION
     ? event.methodArn.replace(/\/prod\/.*/, "/prod/*/*")
     : event.methodArn.replace(/\/dev\/.*/, "/dev/*/*");
 

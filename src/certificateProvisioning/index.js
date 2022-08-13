@@ -4,6 +4,7 @@ import processOrders from "./order";
 import { getS3CertificateData } from "../aws/s3";
 import { asyncFilter } from "../util/array";
 import config from "../config.json";
+import { PRODUCTION } from "../util/env";
 
 const certificateConfigList = config.certificateConfigList;
 
@@ -46,6 +47,8 @@ const isCertificateRenewalNeeded = async (certificateConfig) => {
 };
 
 export default async () => {
+  console.log(`Running. Is prod: ${PRODUCTION ? "yes" : "no"}`);
+
   const certOrdersToRenew = await asyncFilter(
     certificateConfigList,
     isCertificateRenewalNeeded

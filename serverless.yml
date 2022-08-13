@@ -2,9 +2,7 @@ service: acme-lambda
 
 provider:
   name: aws
-  runtime: nodejs12.x
-  profile: ${opt:awsProfile}
-  lambdaHashingVersion: 20201221
+  runtime: nodejs16.x
   apiGateway:
     shouldStartNameWithService: true
     usagePlan:
@@ -17,7 +15,7 @@ plugins:
   - serverless-iam-roles-per-function
 
 custom:
-  stage: ${opt:stage, self:provider.stage}
+  stage: ${opt:stage, 'dev'}
   bundle:
     packager: yarn
   certificateProvisioningEvents:
